@@ -140,11 +140,11 @@ namespace MouseFire2324
             // playerSprite.Update(gameTime);
             // Check for collision between Projectile and player
 
-            if(playerSprite.collisionDetect(ProjectileSprite) && ProjectileSprite.Visible)
-            {
-                if (smacker.State != SoundState.Playing)
-                    smacker.Play();
-            }
+            //if(playerSprite.collisionDetect(ProjectileSprite) && ProjectileSprite.Visible)
+            //{
+            //    if (smacker.State != SoundState.Playing)
+            //        smacker.Play();
+            //}
 
             base.Update(gameTime);
         }
