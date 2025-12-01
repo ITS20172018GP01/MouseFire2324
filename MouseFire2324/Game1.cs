@@ -1,4 +1,5 @@
-﻿using GameFeatures;
+﻿using Engine.Engines;
+using GameFeatures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,7 +20,7 @@ namespace MouseFire2324
         Vector2 _target;
         Vector2 _startPos;
         MouseState previous, current;
-        HealthBar healthBarObject;
+        
         SoundEffectInstance kissing,smacker;
         public Game1()
         {
@@ -38,6 +39,9 @@ namespace MouseFire2324
             // TODO: Add your initialization logic here
             IsMouseVisible = true;
             base.Initialize();
+
+            // Switch to using Input Engine
+            new InputEngine(this);
         }
 
         /// <summary>
@@ -48,16 +52,24 @@ namespace MouseFire2324
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // we have to add the SpriteBatch to the Services
+            Services.AddService(typeof(SpriteBatch), spriteBatch);
+
+            
             Texture2D tx = Content.Load<Texture2D>("projectile");
             _startPos = GraphicsDevice.Viewport.Bounds.Center.ToVector2() - tx.Bounds.Center.ToVector2();
 
-            playerSprite = new Player(Content.Load<Texture2D>("lips"), 
+            // We have to tell the sprite class the game instance it is a drawable component in
+            playerSprite = new Player(this,Content.Load<Texture2D>("lips"), 
                 _startPos,1, 
                 GraphicsDevice.Viewport.Bounds.Size.ToVector2());
 
-            ProjectileSprite = new Sprite(tx, _startPos, 1);
-            playerSprite.Visible = true;
-            healthBarObject = new HealthBar(this, 100, _startPos);
+            // The projectile is a drawable component so we pass in the game reference
+            ProjectileSprite = new Sprite(this,tx, _startPos, 1);
+            ProjectileSprite.Visible = false; // initially invisible
+            // No need comonents are visible by default
+            //healthBarObject = new HealthBar(this, 100, _startPos);
 
             // Make Sound Effect
             SoundEffect kiss = Content.Load<SoundEffect>("kiss");
@@ -87,21 +99,22 @@ namespace MouseFire2324
                 Exit();
             // Sample the mouse state one click at a time
             
-            current = Mouse.GetState();
+            //current = Mouse.GetState();
             // if the Mouse is in current Viewport
-            if (GraphicsDevice.Viewport.Bounds.Contains(current.Position))
+            if (GraphicsDevice.Viewport.Bounds.Contains(InputEngine.MousePosition))
             {
                 // if the mouse left button has been pressed and is now released and the Projectile sprite is invisible
-                if (previous.LeftButton == ButtonState.Pressed &&
-                 current.LeftButton == ButtonState.Released &&
+                if (InputEngine.IsMouseLeftClick() && // Change to input engine
+                                                      //   previous.LeftButton == ButtonState.Pressed &&
+                                                      //current.LeftButton == ButtonState.Released &&
                   !ProjectileSprite.Visible)
                 {
                     // set the target for the movement to the current mouse position 
                     // Change the state of the Projectile and
                     // Decrease the healthbar value and play the sound effect
-                    _target = current.Position.ToVector2();
+                    _target = InputEngine.MousePosition;
                     ProjectileSprite.Visible = true;
-                    healthBarObject.health -= 10;
+                    playerSprite.healthBarObject.health -= 10;
                     if (kissing.State != SoundState.Playing)
                         kissing.Play();
                 }
@@ -120,10 +133,11 @@ namespace MouseFire2324
                 }
             }
             // Update the projectile animation
-            ProjectileSprite.Update(gameTime);
-            previous = current;
+            // Drawable components have their update called automatically
+            //ProjectileSprite.Update(gameTime);
+            //previous = current;
             // Update the player for Key presses and then for animation
-            playerSprite.Update(gameTime);
+            // playerSprite.Update(gameTime);
             // Check for collision between Projectile and player
 
             if(playerSprite.collisionDetect(ProjectileSprite) && ProjectileSprite.Visible)
@@ -142,11 +156,11 @@ namespace MouseFire2324
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
-            ProjectileSprite.Draw(spriteBatch);
-            healthBarObject.Draw(spriteBatch);
-            playerSprite.Draw(spriteBatch);
-            spriteBatch.End();
+            //spriteBatch.Begin();
+            //ProjectileSprite.Draw(spriteBatch);
+            //healthBarObject.Draw(spriteBatch);
+            //playerSprite.Draw(spriteBatch);
+            //spriteBatch.End();
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);

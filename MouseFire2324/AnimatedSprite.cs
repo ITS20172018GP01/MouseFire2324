@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Sprites
 {
-    public class Sprite
+    public class Sprite: DrawableGameComponent
     {
         //sprite texture and position
         Texture2D spriteImage;
@@ -30,7 +30,8 @@ namespace Sprites
         public Texture2D ShowRect;
         //the width and height of our texture
         protected int spriteWidth = 0;
-        public bool Visible { get; set; }
+        // No need as DrawableGameComponent has Visible property
+        //public bool Visible { get; set; }
 
         public int SpriteWidth
         {
@@ -59,8 +60,9 @@ namespace Sprites
 
         public bool InCollision = false;
 
-        public Sprite(Texture2D texture,Vector2 userPosition, int framecount)
+        public Sprite(Game g, Texture2D texture,Vector2 userPosition, int framecount) :base(g)
         {
+            g.Components.Add(this); // To change to to a drawable component
             spriteImage = texture;
             position = userPosition;
             numberOfFrames = framecount;
@@ -71,8 +73,8 @@ namespace Sprites
 
         }
 
-
-        public virtual void Update(GameTime gametime)
+        // Changed to override update to allow for drawable component
+        public override void Update(GameTime gametime)
         {
             if (!Visible) return;
             timer += (float)gametime.ElapsedGameTime.Milliseconds;
@@ -93,7 +95,8 @@ namespace Sprites
                     }
             //set the source to be the current frame in our animation
                     sourceRectangle = new Rectangle(currentFrame * spriteWidth, 0, spriteWidth, spriteHeight);
-            }
+            base.Update(gametime); // To allow drawable component to work
+        }
         public bool collisionDetect(Sprite otherSprite)
         {
             
@@ -128,14 +131,23 @@ namespace Sprites
             //else _effect = SpriteEffects.None;
                 
         }
-        public virtual void Draw(SpriteBatch spriteBatch)
+
+        // changed to override draw to allow for drawable component
+        public override void Draw(GameTime gameTime)
         {
             if (!Visible) return;
+            SpriteBatch spriteBatch = (SpriteBatch)Game.Services.GetService(typeof(SpriteBatch));
             //draw the sprite , specify the postion and source for the image withtin the sprite sheet
             // Changed to allow for sprite effect
+            spriteBatch.Begin();
             spriteBatch.Draw(spriteImage, position,sourceRectangle,Color.White,0f,Vector2.Zero,1.0f,_effect,0f);
+            spriteBatch.End();
             if(ShowRect != null)
                 spriteBatch.Draw(ShowRect,BoundingRect, Color.White);
+
+            base.Draw(gameTime);
+
+
         }       
 
     }

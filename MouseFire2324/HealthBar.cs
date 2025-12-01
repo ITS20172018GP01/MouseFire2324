@@ -8,15 +8,17 @@ using System.Threading.Tasks;
 
 namespace GameFeatures
 {
-    public class HealthBar
+    public class HealthBar : DrawableGameComponent // Inherit from DrawableGameComponent to get Draw method
     {
         public int health;
         private Texture2D _txHealthBar; // hold the texture
         Rectangle _healthRect;   // display the Health bar size
-        Vector2 position; // Position on the screen
+        public Vector2 position; // Position on the screen
 
-        public HealthBar(Game g,int health, Vector2 position)
+        public HealthBar(Game g,int health, Vector2 position) : base(g)
         {
+
+            g.Components.Add(this); // Add to the game components so that Draw will be called
             this.health = health;
             this.position = position;
             _txHealthBar = new Texture2D(g.GraphicsDevice, 1, 1);
@@ -36,14 +38,18 @@ namespace GameFeatures
                 _healthRect = value;
             }
         }
-    public void Draw(SpriteBatch spriteBatch)
+    public override void Draw(GameTime gameTime)
         {
+            SpriteBatch spriteBatch = (SpriteBatch)Game.Services.GetService(typeof(SpriteBatch));
+            spriteBatch.Begin();
             if (health > 60)
                 spriteBatch.Draw(_txHealthBar, HealthRect, Color.Green);
             else if (health > 30 && health <= 60)
                 spriteBatch.Draw(_txHealthBar, HealthRect, Color.Orange);
             else if (health > 0 && health <= 30)
                 spriteBatch.Draw(_txHealthBar, HealthRect, Color.Red);
+            spriteBatch.End();
+            base.Draw(gameTime);
 
         }
     }
