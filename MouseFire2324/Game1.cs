@@ -19,7 +19,7 @@ namespace MouseFire2324
         Player playerSprite;
         Vector2 _target;
         Vector2 _startPos;
-        MouseState previous, current;
+        //MouseState previous, current;
         
         SoundEffectInstance kissing,smacker;
         public Game1()
